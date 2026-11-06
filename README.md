@@ -1,86 +1,89 @@
 # Samsung S23+ GNSS/INS/FGO Prototype
 
-Initial repository architecture for a Samsung Galaxy S23+ GNSS/INS/FGO prototype. The implemented code currently covers the Android diagnostic logger and replay schema validation; estimator math is intentionally interface-only until the logging and replay milestone is complete.
+NavGraph is an Android research prototype for raw GNSS and IMU recording, live
+INS/EKF navigation, asynchronous fixed-lag FGO, and deterministic public-data
+replay. The active Android project is **`fgo_android_app`**. Emulator and public
+replay results do not establish physical S23+ or sub-meter field performance.
 
-## Repository Structure
+## Repository structure
 
-- `android_app/`: Kotlin Android app for permissions, foreground logging, raw GNSS, IMU, and fused-location collection.
-- `cpp_core/`: C++ estimator interfaces and future GNSS/INS/FGO core boundaries.
-- `python_tools/`: replay, validation, plotting, and offline analysis tools.
-- `python_tools/gnss/`: GNSS preprocessing and coordinate transforms for replayed logs.
-- `tests/`: fixtures and future unit/integration/replay tests.
-- `docs/`: schema, ownership, roadmap, test strategy, and interface documentation.
+- `fgo_android_app/`: active Android app and portable C++/JNI estimator core.
+- `fgo_android_app/docs/`: canonical technical contracts and verification reports.
+- `validation_tools/`: independent desktop reference, replay and log validation.
+- `datasets/`: versioned public fixtures with provenance and licensing.
+- `assets/`: generated PNG images and screenshots.
+- `android_app/`, `cpp_core/`, `python_tools/`, `docs/`: earlier prototype material;
+  use the active project and documentation linked above for current development.
 
-## What It Logs
+## Prerequisites
 
-- Android Raw GNSS measurements via `GnssMeasurementsEvent.Callback`
-- GNSS clock fields for each raw measurement epoch
-- Accelerometer and gyroscope samples at a requested 100 Hz period
-- Android platform fused location provider output for baseline comparison
-- Sensor metadata needed to confirm sampling rates and FIFO behavior
+Install these tools locally:
 
-Logs are newline-delimited JSON files following [docs/log_schema.md](docs/log_schema.md).
+- A JDK 17 or newer compatible with Gradle 8.13. Set `JAVA_HOME` to its installation.
+- Gradle **8.13**, with `gradle` on `PATH`.
+- Android Studio and Android SDK platform **36**, SDK platform-tools, NDK
+  **29.0.14206865**, and SDK CMake **3.22.1**. Set `ANDROID_HOME` to your SDK
+  installation (its location is shown in Android Studio's SDK Manager).
+- Python **3.10+** for desktop validation; NumPy for replay/benchmark calculations.
 
-## Build
+No particular clone location, username or Android Studio installation path is
+required. SDK and JDK installations live outside the repository, so their paths
+are supplied by your environment. You can alternatively configure the SDK using
+an untracked `fgo_android_app/local.properties` containing `sdk.dir=...` with your
+own SDK path. Configure Android Studio's Gradle JDK to use your installed JDK.
 
-This workspace is configured for the local Android SDK at `/Users/leeboonyao/Library/Android/sdk` and Android Studio's bundled JBR.
+The shell examples below run from the **repository root**, using a POSIX shell
+(macOS/Linux, or an appropriate Windows shell). On Windows, configure environment
+variables using your shell's syntax and use `.venv\Scripts\python.exe` for Python.
 
-```bash
-/Users/leeboonyao/.gradle/wrapper/dists/gradle-8.13-bin/5xuhj0ry160q40clulazy9h7d/gradle-8.13/bin/gradle :android_app:app:assembleDebug --offline
-```
-
-Debug APK:
-
-```text
-android_app/app/build/outputs/apk/debug/app-debug.apk
-```
-
-## Device Workflow
-
-Install:
-
-```bash
-/Users/leeboonyao/Library/Android/sdk/platform-tools/adb install -r android_app/app/build/outputs/apk/debug/app-debug.apk
-```
-
-On the phone:
-
-1. Open **S23 GNSS Logger**.
-2. Grant location and notification permissions.
-3. Tap **Start logging**.
-4. Test outdoors with clear sky view when checking GNSS capability.
-5. Tap **Stop logging**.
-
-Logs are written under the app external files directory:
-
-```text
-/sdcard/Android/data/com.example.s23logger/files/Documents/logs/
-```
-
-Pull logs:
+## Build and install
 
 ```bash
-/Users/leeboonyao/Library/Android/sdk/platform-tools/adb pull /sdcard/Android/data/com.example.s23logger/files/Documents/logs ./device_logs
+# Use the SDK installed on your machine.
+export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$PATH"
+
+gradle -p fgo_android_app :app:testDebugUnitTest :app:assembleDebug :app:lintDebug
+adb install -r fgo_android_app/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Validate a log:
+The first build needs internet access to resolve dependencies. Add `--offline`
+only after the required dependencies have been cached. These instructions use an
+installed Gradle 8.13; the repository-root wrapper belongs to the earlier prototype.
+
+APK: `fgo_android_app/app/build/outputs/apk/debug/app-debug.apk`.
+The default APK includes native libraries for **arm64-v8a**; use an ARM64 AVD or
+compatible physical device. A deliberate Kotlin-only fallback build can use
+`-Pnavgraph.enableNative=false` when the native toolchain is unavailable.
+
+## Record and validate a session
+
+1. Open **NavGraph** and grant location and notification permissions.
+2. Tap **Start recording**. Test outdoors when assessing GNSS capability.
+3. Tap **Stop and save** before exporting the session.
 
 ```bash
-python3 python_tools/replay/parse_log.py --strict device_logs/<log-file>.ndjson
+adb pull /sdcard/Android/data/com.example.navgraph/files/Documents/logs ./device_logs
+python3 validation_tools/validate_ndjson.py device_logs/SESSION.ndjson
 ```
 
-## Architecture Docs
+Replace `SESSION.ndjson` with the exported filename. The `/sdcard/...` path is an
+Android-device path, independent of the directory where this repository is cloned.
 
-- [AGENTS.md](AGENTS.md): task routing and edit boundaries for future Codex agents.
-- [docs/module_ownership.md](docs/module_ownership.md): module ownership map.
-- [docs/estimator_interfaces.md](docs/estimator_interfaces.md): interface contracts before estimator implementation.
-- [docs/gnss_preprocessing.md](docs/gnss_preprocessing.md): raw GNSS replay to observation epoch conversion.
-- [docs/replay_evaluation.md](docs/replay_evaluation.md): single-command replay, metrics, and plots.
-- [docs/test_strategy.md](docs/test_strategy.md): staged test strategy.
-- [docs/implementation_roadmap.md](docs/implementation_roadmap.md): milestones and first checklist.
+For desktop replay, create an environment inside the clone:
 
-## Notes
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install numpy
+.venv/bin/python validation_tools/navgraph_replay.py device_logs/SESSION.ndjson \
+  --output validation_results/SESSION
+```
 
-- The app requests full-tracking raw GNSS measurements on Android 12+.
-- `HIGH_SAMPLING_RATE_SENSORS` is declared so IMU sampling is not capped at 200 Hz by that permission gate.
-- `wall_time_millis` is for correlation only. Replay/fusion code should use monotonic timestamps and GNSS clock-domain fields described in the schema.
+## Further documentation
+
+- [Android app and native checks](fgo_android_app/README.md)
+- [Desktop benchmark and replay](validation_tools/README.md)
+- [Log schema](fgo_android_app/docs/log_schema.md)
+- [Estimator design](fgo_android_app/docs/estimator_design.md)
+- [Testing plan](fgo_android_app/docs/testing_plan.md)
+- [Emulator verification and limitations](fgo_android_app/docs/emulator_verification.md)
+- [Repository agent guide](AGENTS.md)
