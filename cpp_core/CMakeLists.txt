@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.22)
+project(s23_gnss_ins_core LANGUAGES CXX)
+
+add_library(s23_core_interfaces INTERFACE)
+target_include_directories(s23_core_interfaces INTERFACE include)
+target_compile_features(s23_core_interfaces INTERFACE cxx_std_17)

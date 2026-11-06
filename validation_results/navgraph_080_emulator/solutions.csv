@@ -1,0 +1,1 @@
+elapsed_realtime_nanos,clock_arc,gps_timestamp_ms,estimator,x_ecef_m,y_ecef_m,z_ecef_m,vx_ecef_mps,vy_ecef_mps,vz_ecef_mps,clock_bias_m,clock_drift_mps,iterations,latency_ms,converged

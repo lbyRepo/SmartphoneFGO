@@ -1,0 +1,58 @@
+{
+  "dataset": "device_gnss",
+  "dataset_scope": "Public derived GNSS replay",
+  "input_schema": "gsdc_2023_rich_derived",
+  "lag_seconds": 2.0,
+  "input_epochs": 5,
+  "preprocessing_rejections": {
+    "low_signal_or_elevation": 11
+  },
+  "jacobian_max_abs_error": {
+    "pseudorange": 9.568519635516637e-07,
+    "doppler": 4.547473508864641e-10
+  },
+  "wls": {
+    "matched_epochs": 5,
+    "horizontal_error_m": {
+      "mean": 3.1666626942148954,
+      "p50": 2.7730399987677625,
+      "p95": 4.451148046401115,
+      "max": 4.806954554680484
+    },
+    "vertical_error_m": {
+      "mean": 11.175642821532666,
+      "p95": 13.309978986340571
+    },
+    "max_position_jump_m": 5.162224485400602,
+    "trajectory_second_difference_rms_m": 3.2356238311736294,
+    "latency_ms": {
+      "mean": 1.2240168,
+      "max": 2.211917
+    },
+    "solver_failures": 0,
+    "rejected_measurements": 0,
+    "mean_observations_per_epoch": 33.8
+  },
+  "fgo": {
+    "matched_epochs": 5,
+    "horizontal_error_m": {
+      "mean": 3.2405143513301895,
+      "p50": 2.8047325923142243,
+      "p95": 4.500164472828383,
+      "max": 4.806909862311272
+    },
+    "vertical_error_m": {
+      "mean": 10.814322895796149,
+      "p95": 12.970296033052382
+    },
+    "max_position_jump_m": 4.081171996887104,
+    "trajectory_second_difference_rms_m": 2.092360600989021,
+    "latency_ms": {
+      "mean": 4.5237166,
+      "max": 6.672333
+    },
+    "solver_failures": 0,
+    "rejected_measurements": 0,
+    "mean_observations_per_epoch": 33.8
+  }
+}

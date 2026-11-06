@@ -1,0 +1,68 @@
+{
+  "input": "/tmp/navgraph_080_session.ndjson",
+  "input_schema": "navgraph_ndjson_v1",
+  "session_id": "20260718_022345_37f28683",
+  "structural_validation": {
+    "path": "/tmp/navgraph_080_session.ndjson",
+    "session_id": "20260718_022345_37f28683",
+    "record_counts": {
+      "fused_location": 122,
+      "gnss_clock": 65,
+      "gnss_raw": 455,
+      "imu": 13140,
+      "sensor_meta": 2,
+      "session_end": 1,
+      "session_start": 1
+    },
+    "valid": true,
+    "errors": []
+  },
+  "record_counts": {
+    "fused_location": 122,
+    "gnss_clock": 65,
+    "gnss_raw": 455,
+    "imu": 13140,
+    "sensor_meta": 2,
+    "session_end": 1,
+    "session_start": 1
+  },
+  "clock_arcs": [
+    0
+  ],
+  "clock_arc_count": 1,
+  "raw_gnss_callback_epochs": 65,
+  "clean_gnss_epochs": 0,
+  "accepted_observations": 0,
+  "preprocessing_rejections": {
+    "insufficient_observations": 65,
+    "invalid_pseudorange": 325,
+    "unsupported_constellation_or_time": 130
+  },
+  "navigation": {
+    "received_messages": 0,
+    "accepted_subframes": 0,
+    "rejected_messages": 0,
+    "complete_ephemerides": 0,
+    "rejection_counts": {}
+  },
+  "imu": {
+    "accelerometer": {
+      "samples": 6567,
+      "duration_s": 65.66000000000001,
+      "mean_rate_hz": 100.0,
+      "interval_jitter_std_ms": 0.0,
+      "non_monotonic_samples": 0
+    },
+    "gyroscope": {
+      "samples": 6573,
+      "duration_s": 65.72,
+      "mean_rate_hz": 100.0,
+      "interval_jitter_std_ms": 0.0,
+      "non_monotonic_samples": 0
+    }
+  },
+  "fused_fix_count": 122,
+  "lag_seconds": 2.0,
+  "solver_status": "not_run_no_clean_epochs",
+  "solver_note": "Raw records were parsed, but no epoch had four solver-ready GPS L1 C/A observations. Inspect preprocessing_rejections and navigation diagnostics."
+}

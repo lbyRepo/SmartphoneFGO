@@ -1,0 +1,1 @@
+elapsed_realtime_nanos,clock_arc,gps_timestamp_ms,constellation,svid,signal_type,x_sat_ecef_m,y_sat_ecef_m,z_sat_ecef_m,vx_sat_ecef_mps,vy_sat_ecef_mps,vz_sat_ecef_mps,corrected_pseudorange_m,pseudorange_sigma_m,corrected_range_rate_mps,range_rate_sigma_mps,cn0_dbhz,elevation_deg

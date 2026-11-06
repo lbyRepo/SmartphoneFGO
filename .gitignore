@@ -1,0 +1,11 @@
+.gradle/
+build/
+android/app/build/
+android_app/app/build/
+*.iml
+.idea/
+local.properties
+device_logs/
+tests/evaluation_outputs/
+__pycache__/
+*.pyc

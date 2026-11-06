@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ink">#172126</color>
+    <color name="muted">#607078</color>
+    <color name="canvas">#F3F6F6</color>
+    <color name="panel">#FFFFFF</color>
+    <color name="line">#D9E1E3</color>
+    <color name="teal">#007C78</color>
+    <color name="teal_dark">#006460</color>
+    <color name="red">#B73636</color>
+    <color name="blue">#2864A0</color>
+</resources>

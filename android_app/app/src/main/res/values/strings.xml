@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">S23 GNSS Logger</string>
+    <string name="logging_channel_name">GNSS logging</string>
+</resources>

@@ -1,0 +1,32 @@
+[
+{
+  "directory": "/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/app/.cxx/Debug/1a1q6o1v/arm64-v8a",
+  "command": "/Users/leeboonyao/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=aarch64-none-linux-android30 --sysroot=/Users/leeboonyao/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -Dnavgraph_estimator_EXPORTS -I\"/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/include\" -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -Wall -Wextra -Werror -pedantic -o CMakeFiles/navgraph_estimator.dir/core/frame.cpp.o -c \"/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/core/frame.cpp\"",
+  "file": "/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/core/frame.cpp"
+},
+{
+  "directory": "/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/app/.cxx/Debug/1a1q6o1v/arm64-v8a",
+  "command": "/Users/leeboonyao/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=aarch64-none-linux-android30 --sysroot=/Users/leeboonyao/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -Dnavgraph_estimator_EXPORTS -I\"/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/include\" -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -Wall -Wextra -Werror -pedantic -o CMakeFiles/navgraph_estimator.dir/ekf/ekf.cpp.o -c \"/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/ekf/ekf.cpp\"",
+  "file": "/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/ekf/ekf.cpp"
+},
+{
+  "directory": "/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/app/.cxx/Debug/1a1q6o1v/arm64-v8a",
+  "command": "/Users/leeboonyao/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=aarch64-none-linux-android30 --sysroot=/Users/leeboonyao/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -Dnavgraph_estimator_EXPORTS -I\"/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/include\" -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -Wall -Wextra -Werror -pedantic -o CMakeFiles/navgraph_estimator.dir/fgo/fgo.cpp.o -c \"/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/fgo/fgo.cpp\"",
+  "file": "/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/fgo/fgo.cpp"
+},
+{
+  "directory": "/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/app/.cxx/Debug/1a1q6o1v/arm64-v8a",
+  "command": "/Users/leeboonyao/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=aarch64-none-linux-android30 --sysroot=/Users/leeboonyao/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -Dnavgraph_estimator_EXPORTS -I\"/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/include\" -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -Wall -Wextra -Werror -pedantic -o CMakeFiles/navgraph_estimator.dir/gnss/gnss.cpp.o -c \"/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/gnss/gnss.cpp\"",
+  "file": "/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/gnss/gnss.cpp"
+},
+{
+  "directory": "/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/app/.cxx/Debug/1a1q6o1v/arm64-v8a",
+  "command": "/Users/leeboonyao/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=aarch64-none-linux-android30 --sysroot=/Users/leeboonyao/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -Dnavgraph_estimator_EXPORTS -I\"/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/include\" -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -Wall -Wextra -Werror -pedantic -o CMakeFiles/navgraph_estimator.dir/ins/ins.cpp.o -c \"/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/ins/ins.cpp\"",
+  "file": "/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/ins/ins.cpp"
+},
+{
+  "directory": "/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/app/.cxx/Debug/1a1q6o1v/arm64-v8a",
+  "command": "/Users/leeboonyao/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=aarch64-none-linux-android30 --sysroot=/Users/leeboonyao/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -Dnavgraph_estimator_EXPORTS -I\"/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/include\" -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -Wall -Wextra -Werror -pedantic -o CMakeFiles/navgraph_estimator.dir/jni/navgraph_jni.cpp.o -c \"/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/jni/navgraph_jni.cpp\"",
+  "file": "/Users/leeboonyao/Documents/Factor Graph GNSS INS/fgo_android_app/cpp/jni/navgraph_jni.cpp"
+}
+]

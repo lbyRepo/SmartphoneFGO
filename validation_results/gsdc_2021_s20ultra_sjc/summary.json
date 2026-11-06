@@ -1,0 +1,55 @@
+{
+  "dataset": "GSDC 2021 / Samsung S20 Ultra / SJC full drive",
+  "dataset_scope": "2,083-second public dynamic drive; derived pseudorange only",
+  "input_schema": "gsdc_2021_legacy_derived",
+  "lag_seconds": 2.0,
+  "input_epochs": 2081,
+  "preprocessing_rejections": {},
+  "jacobian_max_abs_error": {
+    "pseudorange": 1.725574510058614e-06
+  },
+  "wls": {
+    "matched_epochs": 2081,
+    "horizontal_error_m": {
+      "mean": 11.312826458919092,
+      "p50": 10.148088577089565,
+      "p95": 25.291141517876124,
+      "max": 53.908100965007286
+    },
+    "vertical_error_m": {
+      "mean": 50.041072720280695,
+      "p95": 67.83116523720258
+    },
+    "max_position_jump_m": 83.43399369845406,
+    "trajectory_second_difference_rms_m": 13.7758289132475,
+    "latency_ms": {
+      "mean": 0.659201319557905,
+      "max": 4.794125
+    },
+    "solver_failures": 83,
+    "rejected_measurements": 297,
+    "mean_observations_per_epoch": 25.76597789524267
+  },
+  "fgo": {
+    "matched_epochs": 2081,
+    "horizontal_error_m": {
+      "mean": 11.32550321953155,
+      "p50": 10.128003956844895,
+      "p95": 24.39255827432501,
+      "max": 54.13689860444663
+    },
+    "vertical_error_m": {
+      "mean": 50.23678159062474,
+      "p95": 67.71272927864615
+    },
+    "max_position_jump_m": 54.96899361597239,
+    "trajectory_second_difference_rms_m": 10.296057564010402,
+    "latency_ms": {
+      "mean": 1.9344483382988948,
+      "max": 10.511833
+    },
+    "solver_failures": 96,
+    "rejected_measurements": 296,
+    "mean_observations_per_epoch": 25.76597789524267
+  }
+}

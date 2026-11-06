@@ -1,0 +1,55 @@
+{
+  "dataset": "GSDC 2021 / Samsung S20 Ultra / SJC 600 s",
+  "dataset_scope": "600-second dynamic public segment; derived pseudorange only; no Doppler or IMU in this mirror",
+  "input_schema": "gsdc_2021_legacy_derived",
+  "lag_seconds": 2.0,
+  "input_epochs": 600,
+  "preprocessing_rejections": {},
+  "jacobian_max_abs_error": {
+    "pseudorange": 1.547960092218581e-06
+  },
+  "wls": {
+    "matched_epochs": 600,
+    "horizontal_error_m": {
+      "mean": 9.957461111042173,
+      "p50": 8.904216458299397,
+      "p95": 20.433256878640975,
+      "max": 48.72048419529228
+    },
+    "vertical_error_m": {
+      "mean": 53.670539179458984,
+      "p95": 68.30615592699931
+    },
+    "max_position_jump_m": 40.67681185696062,
+    "trajectory_second_difference_rms_m": 11.870277155874156,
+    "latency_ms": {
+      "mean": 0.5528336083333333,
+      "max": 2.166208
+    },
+    "solver_failures": 1,
+    "rejected_measurements": 15,
+    "mean_observations_per_epoch": 25.923333333333332
+  },
+  "fgo": {
+    "matched_epochs": 600,
+    "horizontal_error_m": {
+      "mean": 9.991196836244395,
+      "p50": 8.990842269442439,
+      "p95": 20.203970299517533,
+      "max": 50.23670259184626
+    },
+    "vertical_error_m": {
+      "mean": 53.85400949667789,
+      "p95": 68.11081305931563
+    },
+    "max_position_jump_m": 37.940695633349385,
+    "trajectory_second_difference_rms_m": 9.160038179577606,
+    "latency_ms": {
+      "mean": 1.5438775733333334,
+      "max": 6.219834
+    },
+    "solver_failures": 3,
+    "rejected_measurements": 14,
+    "mean_observations_per_epoch": 25.923333333333332
+  }
+}
