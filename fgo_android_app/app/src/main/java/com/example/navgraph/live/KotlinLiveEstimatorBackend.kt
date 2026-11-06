@@ -2,6 +2,7 @@ package com.example.navgraph.live
 
 import com.example.navgraph.estimator.Coordinates
 import com.example.navgraph.estimator.EnuFrame
+import com.example.navgraph.estimator.FgoConfig
 import com.example.navgraph.estimator.GnssEpoch
 import com.example.navgraph.estimator.GnssInsEkf
 import com.example.navgraph.estimator.GnssWlsSolver
@@ -70,6 +71,9 @@ data class LiveBackendHealth(
     val nativeFgoWindowUpdates: Long = 0,
     val nativeFgoFailures: Long = 0,
     val fgoSkippedBusy: Long = 0,
+    val fgoWindowSolves: Long = 0,
+    val fgoConvergedWindows: Long = 0,
+    val fgoMaxWindowKeyframes: Int = 0,
     val fgoFeedbackAccepted: Long = 0,
     val fgoFeedbackRejected: Long = 0,
     val latestFgoFeedbackReason: String = "none",
@@ -432,13 +436,15 @@ class KotlinLiveEstimatorBackend(
             val result = runCatching {
                 InertialFixedLagSmoother(
                     localFrame,
-                    lagSeconds = 2.0,
+                    lagSeconds = FgoConfig.DEFAULT_LAG_SECONDS,
+                    maxKeyframes = FgoConfig.MAX_KEYFRAMES,
                     applyEarthRotation = applyEarthRotation,
                     preferNative = true,
                 ).run(
                     epochs,
                     samples,
                     wls,
+                    latestOnly = true,
                 )
             }
             synchronized(lock) {
@@ -479,6 +485,14 @@ class KotlinLiveEstimatorBackend(
                                 smoothed.nativeWindowUpdates,
                             nativeFgoFailures = mutableHealth.nativeFgoFailures +
                                 smoothed.nativeFailures,
+                            fgoWindowSolves = mutableHealth.fgoWindowSolves +
+                                smoothed.windowSolves,
+                            fgoConvergedWindows = mutableHealth.fgoConvergedWindows +
+                                smoothed.convergedWindows,
+                            fgoMaxWindowKeyframes = maxOf(
+                                mutableHealth.fgoMaxWindowKeyframes,
+                                smoothed.maxWindowKeyframes,
+                            ),
                             fgoFeedbackAccepted = mutableHealth.fgoFeedbackAccepted +
                                 if (decision.accepted) 1 else 0,
                             fgoFeedbackRejected = mutableHealth.fgoFeedbackRejected +
@@ -628,7 +642,10 @@ class KotlinLiveEstimatorBackend(
 
     private companion object {
         const val MAX_LATE_GNSS_NANOS = 100_000_000L
-        const val HISTORY_NANOS = 4_000_000_000L
+        // Retain the FGO horizon plus one epoch so the live worker can always
+        // build a full fixed-lag window without reusing stale history.
+        val HISTORY_NANOS =
+            ((FgoConfig.DEFAULT_LAG_SECONDS + 1.0) * 1_000_000_000.0).toLong()
     }
 }
 

@@ -1,5 +1,6 @@
 package com.example.navgraph.live
 
+import com.example.navgraph.estimator.FgoConfig
 import com.example.navgraph.estimator.SyntheticGnssInsDatasetFactory
 import java.util.concurrent.Executors
 import kotlin.test.Test
@@ -58,6 +59,9 @@ class KotlinLiveEstimatorBackendTest {
             assertTrue(health.ekfPropagationUpdates >= 2_000L)
             assertEquals(0L, health.staleGnssUpdates)
             assertTrue(health.fgoUpdates > 0L, "FGO did not publish before the deadline: $health")
+            assertTrue(health.fgoWindowSolves >= health.fgoUpdates)
+            assertTrue(health.fgoConvergedWindows > 0L)
+            assertTrue(health.fgoMaxWindowKeyframes in 2..FgoConfig.MAX_KEYFRAMES)
             assertTrue(
                 health.fgoFeedbackAccepted > 0L,
                 "No covariance-gated FGO correction was accepted: $health",

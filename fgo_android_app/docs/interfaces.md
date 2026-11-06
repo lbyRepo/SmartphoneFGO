@@ -269,14 +269,20 @@ contract.
 ### Fixed-lag smoother
 
 ```kotlin
-InertialFixedLagSmoother(frame, lagSeconds = 2.0)
-    .run(epochs, imuSamples, wls): InertialSmootherResult
+InertialFixedLagSmoother(
+    frame,
+    lagSeconds = FgoConfig.DEFAULT_LAG_SECONDS,
+    maxKeyframes = FgoConfig.MAX_KEYFRAMES,
+).run(epochs, imuSamples, wls, latestOnly = false): InertialSmootherResult
 ```
 
 Inputs must be chronologically ordered, `epochs.size == wls.size`, and each adjacent
 GNSS interval must contain at least two IMU samples. Current graph state is ENU
 position/velocity, accelerometer bias, clock bias, and clock drift. Output includes
-one estimate per epoch and the number of inertial factors.
+one estimate per solved window and the number of inertial factors; `latestOnly = true`
+solves only the newest window and is the live path. The default horizon is five
+seconds with a twelve-keyframe cap, so the dense matrix is bounded at the expected
+1 Hz GNSS rate.
 
 `InertialSmootherResult.stateUncertainties` exposes final-state ENU position and
 velocity plus clock marginal sigmas from selected diagonal entries of the robust
@@ -284,8 +290,9 @@ normal-equation inverse. The live adapter uses these values with the captured EK
 same-keyframe covariance, a four-times correlation inflation, a 99.9% six-state
 normalized innovation gate, absolute correction bounds, and a two-second age gate.
 Accepted correlated corrections use gain 0.25 and leave EKF covariance unchanged.
-The result also reports the latest engine, number of native windows, and native
-failures. A native failure is followed by the Kotlin reference solve for that window.
+The result also reports the latest engine, number of native windows, native
+failures, window solves, converged windows, and the maximum keyframes in any window.
+A native failure is followed by the Kotlin reference solve for that window.
 
 A future incremental smoother must additionally expose keyframe insertion,
 marginalization status, and a reset operation at clock/frame discontinuities.

@@ -8,7 +8,8 @@ class SyntheticGnssInsBenchmark {
         val (ekfEstimates, ekf) = runEkf(dataset, wls)
         val smoother = InertialFixedLagSmoother(
             dataset.frame,
-            lagSeconds = 2.0,
+            lagSeconds = FgoConfig.DEFAULT_LAG_SECONDS,
+            maxKeyframes = FgoConfig.MAX_KEYFRAMES,
             applyEarthRotation = false,
         ).run(dataset.gnssEpochs, dataset.imuSamples, wls)
         val jacobians = GnssInsJacobianChecker.check(

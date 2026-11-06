@@ -132,13 +132,19 @@ performance validation.
 The deterministic 20-second scenario contains 2,001 IMU samples, 21 GNSS epochs,
 sensor bias/noise, eight satellites, and one 38 m pseudorange outlier.
 
-| Horizontal metric | WLS | EKF | Inertial FGO |
+| Horizontal metric | WLS | EKF | Inertial FGO (5 s) |
 |---|---:|---:|---:|
-| P50 | 2.42 m | 0.83 m | 1.08 m |
-| P95 | 3.99 m | 1.35 m | 2.93 m |
+| P50 | 2.42 m | 0.83 m | 0.96 m |
+| P95 | 3.99 m | 1.35 m | 2.03 m |
+| Mean | 2.24 m | 0.79 m | 1.08 m |
+| Max position jump | 21.07 m | 2.77 m | 3.64 m |
+| Second-difference RMS | 14.78 m | 1.17 m | 2.32 m |
 
-The EKF rejects the injected pseudorange and reports finite position covariance.
-These values verify deterministic estimator behavior only.
+The FGO row now uses the five-second default horizon with the twelve-keyframe cap.
+At the previous two-second horizon the same scenario produced 1.08 m P50 and 2.93 m
+P95, so the longer horizon removes about 31 percent of FGO P95 error without a
+convergence failure. The EKF rejects the injected pseudorange and reports finite
+position covariance. These values verify deterministic estimator behavior only.
 
 The same stream also drives `KotlinLiveEstimatorBackend` with absolute GNSS
 milliseconds deliberately unrelated to monotonic integration time. The regression

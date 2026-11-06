@@ -10,6 +10,15 @@ import kotlin.test.assertTrue
 class NativeFixedLagSmootherParityTest {
     @Test
     fun jniMatchesKotlinWindowStatesIterationsAndMarginals() {
+        assertWindowParity(epochCount = 3)
+    }
+
+    @Test
+    fun jniMatchesKotlinAtTheFiveSecondWindowSize() {
+        assertWindowParity(epochCount = 6)
+    }
+
+    private fun assertWindowParity(epochCount: Int) {
         val library = File(
             System.getProperty("java.io.tmpdir"),
             "navgraph_native_parity/libnavgraph_estimator.dylib",
@@ -17,7 +26,7 @@ class NativeFixedLagSmootherParityTest {
         assumeTrue("Native parity library is not built: ${library.absolutePath}", library.isFile)
         NativeFixedLagSmoother.loadAbsoluteForTests(library.absolutePath)
         val dataset = SyntheticGnssInsDatasetFactory.create(seed = 123L)
-        val epochs = dataset.gnssEpochs.take(3)
+        val epochs = dataset.gnssEpochs.take(epochCount)
         val solver = GnssWlsSolver(applyEarthRotation = false)
         val wls = mutableListOf<PositionEstimate>()
         epochs.forEach { epoch -> wls += solver.solveEpoch(epoch, wls.lastOrNull()) }
@@ -32,7 +41,8 @@ class NativeFixedLagSmootherParityTest {
         }
         val kotlin = InertialFixedLagSmoother(
             dataset.frame,
-            lagSeconds = 2.0,
+            lagSeconds = FgoConfig.DEFAULT_LAG_SECONDS,
+            maxKeyframes = FgoConfig.MAX_KEYFRAMES,
             applyEarthRotation = false,
         ).solveWindow(epochs, wls, preintegrations)
         val native = assertNotNull(

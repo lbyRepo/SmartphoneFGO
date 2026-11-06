@@ -166,7 +166,10 @@ The current JVM suite checks:
 The synthetic test must continue to report 2,001 IMU samples, 21 GNSS epochs, 20
 inertial factors, zero solver failures, at least one EKF pseudorange rejection,
 finite positive position sigma, and better EKF median horizontal error than WLS.
-Exact latency is not a unit-test assertion.
+The fixed-lag horizon regression must also show that the five-second default lowers
+horizontal P95 versus the two-second horizon without a solver failure, that the
+twelve-keyframe cap bounds any window, and that `latestOnly` solves exactly one
+window. Exact latency is not a unit-test assertion.
 
 ## Log schema tests
 
@@ -368,6 +371,9 @@ The following remain required before the full target can be accepted:
 
 - multi-constellation/modernized-signal ephemeris;
 - attitude and gyroscope-bias variables in the fixed-lag graph;
+- exact fixed-lag marginalization and a carried prior; the current graph re-solves a
+  capped backward window initialized from WLS each epoch;
+- carrier-phase/TDCP factors, which remain outside schema v1;
 - physical S23+ rate, latency, power, thermal, and field-accuracy profiling;
 - additional public traces containing IMU/Doppler and independently referenced S23+
   field campaigns.
