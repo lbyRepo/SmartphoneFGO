@@ -70,7 +70,7 @@ class NdjsonLogWriter private constructor(
             writer.write(
                 "session_start",
                 JSONObject()
-                    .put("app_version", "0.12.0")
+                    .put("app_version", com.example.navgraph.BuildConfig.VERSION_NAME)
                     .put("android_sdk", Build.VERSION.SDK_INT)
                     .put("device_manufacturer", Build.MANUFACTURER)
                     .put("device_model", Build.MODEL)

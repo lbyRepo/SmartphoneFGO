@@ -1,0 +1,15 @@
+{
+  "epochs": 600,
+  "accepted_observations": 15554,
+  "wls_p50_m": 8.904216457970197,
+  "wls_p95_m": 20.433256877448173,
+  "fgo_p50_m": 8.990842267032964,
+  "fgo_p95_m": 20.20397030159409,
+  "wls_solver_failures": 1,
+  "fgo_solver_failures": 3,
+  "max_android_desktop_geographic_delta_degrees": 2.2737367544323206e-13,
+  "wls_p50_android_desktop_delta_m": -1.138868555017325e-09,
+  "wls_p95_android_desktop_delta_m": -3.907771883859823e-10,
+  "fgo_p50_android_desktop_delta_m": -2.3517365832503856e-09,
+  "fgo_p95_android_desktop_delta_m": 9.79074599172236e-10
+}

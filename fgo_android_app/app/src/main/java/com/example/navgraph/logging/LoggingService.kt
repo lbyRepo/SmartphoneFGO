@@ -30,6 +30,7 @@ class LoggingService : Service() {
     private var liveCoordinator: LiveEstimatorCoordinator? = null
     private val handler = Handler(Looper.getMainLooper())
     private var lastLocation: Location? = null
+    private var mapClockCount: Int? = null
     private var startedElapsedNanos = 0L
 
     private val statusTask = object : Runnable {
@@ -68,6 +69,9 @@ class LoggingService : Service() {
         val foregroundNotification = buildNotification("Preparing session")
         startForeground(NOTIFICATION_ID, foregroundNotification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
         val logWriter = NdjsonLogWriter.create(this, IMU_PERIOD_US)
+        com.example.navgraph.map.LiveMapSession.history.reset()
+        lastLocation = null
+        mapClockCount = null
         writer = logWriter
         startedElapsedNanos = SystemClock.elapsedRealtimeNanos()
         getSharedPreferences(PREFERENCES, MODE_PRIVATE).edit()
@@ -134,6 +138,21 @@ class LoggingService : Service() {
         val backendHealth = liveHealth?.backend
         val solution = backendHealth?.latestSolution
         val fgoSolution = backendHealth?.latestFgoSolution
+        if (logging) {
+            val history = com.example.navgraph.map.LiveMapSession.history
+            val clock = gnssCollector?.lastClockDiscontinuity?.get()
+            val discontinuity = mapClockCount != null && clock != mapClockCount
+            mapClockCount = clock
+            if (solution != null) history.append(com.example.navgraph.map.GeographicSample(
+                solution.source.name, solution.elapsedRealtimeNanos,
+                com.example.navgraph.map.TrackTimeBase.MONOTONIC_NANOS,
+                solution.latitudeDegrees, solution.longitudeDegrees, solution.horizontalSigmaMeters, breakBefore = discontinuity))
+            if (location != null) history.append(com.example.navgraph.map.GeographicSample(
+                "Android fused", location.elapsedRealtimeNanos,
+                com.example.navgraph.map.TrackTimeBase.MONOTONIC_NANOS,
+                location.latitude, location.longitude,
+                if (location.hasAccuracy()) location.accuracy.toDouble() else null))
+        }
         val intent = Intent(ACTION_STATUS)
             .setPackage(packageName)
             .putExtra(EXTRA_LOGGING, logging)

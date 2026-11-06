@@ -199,7 +199,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        screen = DashboardScreen(this, ::startRequested, ::stopRequested, ::runReplay)
+        screen = DashboardScreen(this, ::startRequested, ::stopRequested, ::runReplay, savedInstanceState)
         setContentView(screen.rootView)
         screen.setPermissionsGranted(hasRequiredPermissions())
     }
@@ -225,6 +225,14 @@ class MainActivity : Activity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) { screen.save(outState); super.onSaveInstanceState(outState) }
+
+    override fun onStart() { super.onStart(); screen.onStart() }
+
+    override fun onStop() { screen.onStop(); super.onStop() }
+
+    override fun onLowMemory() { super.onLowMemory(); screen.onLowMemory() }
+
     override fun onPause() {
         if (receiverRegistered) {
             unregisterReceiver(statusReceiver)
@@ -234,6 +242,7 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
+        screen.onDestroy()
         replayExecutor.shutdownNow()
         super.onDestroy()
     }
@@ -271,6 +280,7 @@ class MainActivity : Activity() {
         replayExecutor.execute {
             val outcome = runCatching { AssetReplayEstimator(applicationContext).run() }
             runOnUiThread {
+                if (isDestroyed) return@runOnUiThread
                 replayRunning = false
                 outcome.onSuccess(screen::showReplayResult)
                     .onFailure { screen.showReplayFailure(it.message ?: it.javaClass.simpleName) }

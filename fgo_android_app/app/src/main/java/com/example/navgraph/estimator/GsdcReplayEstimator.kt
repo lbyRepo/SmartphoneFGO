@@ -37,6 +37,12 @@ class GsdcReplayEstimator private constructor(
             preprocessingRejections = preprocessingRejections,
             wlsMetrics = computeMetrics(wls, truth),
             fgoMetrics = computeMetrics(fgo, truth),
+            geographicTracks = wls.map { com.example.navgraph.map.geographicFromEcef(
+                "WLS", it.timestampMillis, it.positionEcefMeters, it.converged) } +
+                fgo.map { com.example.navgraph.map.geographicFromEcef(
+                    "FGO", it.timestampMillis, it.positionEcefMeters, it.converged) } +
+                truth.map { (time, position) -> com.example.navgraph.map.geographicFromEcef(
+                    "Reference", time, position) },
             truthTrajectory = truth.values.map { it.toHorizontal(reference) },
             wlsTrajectory = wls.map { it.positionEcefMeters.toHorizontal(reference) },
             fgoTrajectory = fgo.map { it.positionEcefMeters.toHorizontal(reference) },
