@@ -35,14 +35,14 @@ innovation gates and Joseph-form covariance updates.
 
 ## FGO contract
 
-Each synthetic fixed-lag keyframe currently contains ENU position, ENU velocity,
+Each fixed-lag keyframe currently contains ENU position, ENU velocity,
 accelerometer bias, clock bias, and clock drift. Factors include:
 
 - Robust pseudorange and Doppler measurements.
 - IMU-preintegrated position and velocity over each one-second keyframe interval.
 - Accelerometer-bias random walk.
 - Clock bias/drift evolution.
-- A prior on the first state in each two-second window.
+- A prior on the first state in each window.
 
 The preintegrator also computes delta attitude, but attitude and gyro bias are not
 yet graph variables. This is a known implementation boundary, not a claim of full
@@ -51,7 +51,21 @@ visual-inertial-style preintegration.
 The Kotlin reference and portable C++17 backend implement the same damped dense
 Gauss-Newton window, Huber GNSS factors, state ordering, convergence threshold, and
 selected inverse-Hessian marginals. Live Android prefers C++ and records every native
-window/fallback; the two-second lag bounds the expected 1 Hz live matrix to 33 by 33.
+window/fallback.
+
+The inertial graph uses a configurable backward horizon of five seconds by default,
+capped at twelve keyframes (`FgoConfig`). At the expected 1 Hz GNSS rate that is six
+11-state keyframes and a 66 by 66 dense matrix; the cap bounds the matrix when the
+GNSS rate is higher. The live worker retains six seconds of history and solves only
+the newest window, while replay solves every window. The horizon is a measured
+choice: on the deterministic GNSS/INS scenario it lowers FGO horizontal P95 from
+2.93 m at two seconds to 2.03 m and second-difference RMS from 3.84 m to 2.32 m with
+no convergence failures. It is implementation evidence, not a field-accuracy claim.
+
+The GNSS-only GSDC replay keeps its two-second horizon so its desktop and Android
+numbers remain comparable. Exact marginalization, attitude/gyro-bias states, and
+carrier-phase/TDCP factors remain future work; the keyframe cap bounds the current
+dense solve until marginalization is implemented.
 
 ## Validation boundary
 

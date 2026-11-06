@@ -11,6 +11,9 @@ data class InertialSmootherResult(
     val engine: String = "KOTLIN",
     val nativeWindowUpdates: Int = 0,
     val nativeFailures: Int = 0,
+    val windowSolves: Int = 0,
+    val convergedWindows: Int = 0,
+    val maxWindowKeyframes: Int = 0,
 )
 
 data class SmootherStateUncertainty(
@@ -22,14 +25,22 @@ data class SmootherStateUncertainty(
 
 class InertialFixedLagSmoother(
     private val frame: EnuFrame,
-    private val lagSeconds: Double = 2.0,
+    private val lagSeconds: Double = FgoConfig.DEFAULT_LAG_SECONDS,
+    private val maxKeyframes: Int = FgoConfig.MAX_KEYFRAMES,
     private val applyEarthRotation: Boolean = true,
     private val preferNative: Boolean = false,
 ) {
+    init {
+        require(lagSeconds > 0.0) { "lagSeconds must be positive" }
+        require(maxKeyframes >= FgoConfig.MIN_KEYFRAMES) {
+            "maxKeyframes must be at least ${FgoConfig.MIN_KEYFRAMES}"
+        }
+    }
     fun run(
         epochs: List<GnssEpoch>,
         imuSamples: List<ImuSample>,
         wls: List<PositionEstimate>,
+        latestOnly: Boolean = false,
     ): InertialSmootherResult {
         require(epochs.size == wls.size && epochs.isNotEmpty())
         val preintegrations = epochs.zipWithNext { first, second ->
@@ -42,11 +53,17 @@ class InertialFixedLagSmoother(
         var nativeWindowUpdates = 0
         var nativeFailures = 0
         var engine = "KOTLIN"
-        val estimates = epochs.indices.map { endIndex ->
+        var windowSolves = 0
+        var convergedWindows = 0
+        var maxWindowKeyframes = 0
+        val endIndices = if (latestOnly) listOf(epochs.lastIndex) else epochs.indices.toList()
+        val estimates = endIndices.map { endIndex ->
             var startIndex = endIndex
             while (startIndex > 0 &&
-                (epochs[endIndex].integrationTimestampNanos -
-                    epochs[startIndex - 1].integrationTimestampNanos) * 1.0e-9 <= lagSeconds
+                epochs[endIndex].integrationTimestampNanos -
+                epochs[startIndex - 1].integrationTimestampNanos <=
+                lagSeconds * 1.0e9 &&
+                endIndex - startIndex + 2 <= maxKeyframes
             ) startIndex--
             val started = System.nanoTime()
             val solution = solveWindow(
@@ -56,6 +73,9 @@ class InertialFixedLagSmoother(
                     preintegrations.subList(startIndex, endIndex),
             )
             uncertainties += solution.uncertainty
+            windowSolves++
+            if (solution.converged) convergedWindows++
+            maxWindowKeyframes = max(maxWindowKeyframes, endIndex - startIndex + 1)
             if (solution.engine == "C++ JNI") {
                 nativeWindowUpdates++
                 if (engine != "KOTLIN FALLBACK") engine = "C++ JNI"
@@ -99,6 +119,9 @@ class InertialFixedLagSmoother(
             engine,
             nativeWindowUpdates,
             nativeFailures,
+            windowSolves,
+            convergedWindows,
+            maxWindowKeyframes,
         )
     }
 

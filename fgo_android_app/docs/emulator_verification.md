@@ -320,3 +320,35 @@ Stopped-session log check: exported `navgraph_20261106_154141_a987f467.ndjson`
 from the final APK and ran `validation_tools/validate_ndjson.py`: valid, zero
 errors; 1,522 IMU, seven GNSS clock, 49 raw GNSS and six fused-location records,
 with one session start and one session end. This is an emulator collection check.
+
+## FGO horizon update (2026-11-07; host verification only)
+
+The inertial fixed-lag graph now defaults to a five-second horizon capped at twelve
+keyframes, and the live worker solves only the newest window over a six-second
+history. This section records host evidence only; it does not claim Android playback
+or device verification.
+
+Host checks from `fgo_android_app`:
+
+- `:app:testDebugUnitTest` — 40 tests, 0 failures, 0 skipped.
+- `:app:nativeHostParityTest` — the new six-keyframe
+  (`jniMatchesKotlinAtTheFiveSecondWindowSize`) Kotlin/JNI parity case passed for
+  every state component and selected marginal.
+- `:app:assembleDebug :app:lintDebug` — build and lint passed; the arm64 CMake debug
+  library rebuilt. Lint reports only pre-existing `SetTextI18n` warnings in UI files.
+- `./tools/run_cpp_tests.sh` — all four portable C++ host tests passed.
+- `python3 -m unittest discover -s validation_tools -p "test_*.py"` — 12 tests passed.
+- The deterministic synthetic FGO changed from P50/P95 1.08/2.93 m at a two-second
+  horizon to 0.96/2.03 m at five seconds, with zero solver failures; second-difference
+  RMS changed from 3.84 m to 2.32 m.
+
+Not executed for this change:
+
+- Android Studio AVD playback of public smartphone data with the new horizon.
+- UI sizing at S23+-representative and smaller phone viewports, including enlarged
+  system fonts.
+- Physical S23+ rate, latency, power, thermal, or field-accuracy profiling.
+
+The 600-epoch GSDC replay still uses the GNSS-only two-second FGO so its desktop and
+Android metrics remain comparable. Until the AVD checks above are run and recorded,
+the live horizon change is host-verified only.
