@@ -34,6 +34,15 @@ Repository-level rules:
 
 ## Git and commit proposals
 
+- Every new feature must be developed on a new, dedicated feature branch created
+  from `main`; use the `codex/feature-<name>` naming convention for agent-created
+  branches. Create the branch before making feature changes. If the current
+  checkout contains unrelated work, use an isolated Git worktree.
+- Merge feature branches into `main` only through pull requests. Do not commit
+  feature work directly to `main` or merge feature branches into `main` locally.
+  This workflow does not authorize agents to create commits, push branches, or
+  open pull requests; the explicit authorization rules below still apply.
+
 - Do not create commits. Agents may stage task-related changes and propose a
   commit message and description for the user to review. Do not push or open a
   pull request unless explicitly requested.
