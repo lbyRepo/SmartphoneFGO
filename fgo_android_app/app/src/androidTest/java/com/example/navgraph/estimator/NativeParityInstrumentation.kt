@@ -38,6 +38,25 @@ class NativeParityInstrumentation : Instrumentation() {
         check(positionError < 1.0e-3) { "Native position error $positionError m" }
         check(velocityError < 1.0e-4) { "Native velocity error $velocityError m/s" }
         val liveHealth = runLiveBackend()
+        val replay = AssetReplayEstimator(targetContext).run()
+        val mapEvidence = org.json.JSONObject().apply {
+            put("epochs", replay.epochCount)
+            put("accepted_observations", replay.acceptedObservationCount)
+            put("wls_p50_m", replay.wlsMetrics.horizontalP50Meters)
+            put("wls_p95_m", replay.wlsMetrics.horizontalP95Meters)
+            put("fgo_p50_m", replay.fgoMetrics.horizontalP50Meters)
+            put("fgo_p95_m", replay.fgoMetrics.horizontalP95Meters)
+            put("wls_solver_failures", replay.wlsMetrics.solverFailures)
+            put("fgo_solver_failures", replay.fgoMetrics.solverFailures)
+            put("tracks", org.json.JSONArray().apply {
+                replay.geographicTracks.forEach { sample -> put(org.json.JSONObject().apply {
+                    put("source", sample.source); put("timestamp", sample.timestamp)
+                    put("latitude", sample.latitudeDegrees); put("longitude", sample.longitudeDegrees)
+                    put("valid", sample.valid)
+                }) }
+            })
+        }
+        java.io.File(targetContext.filesDir, "map-replay-evidence.json").writeText(mapEvidence.toString(2))
         finish(Activity.RESULT_OK, Bundle().apply {
             putString("native_library", "loaded")
             putString("abi", android.os.Build.SUPPORTED_ABIS.firstOrNull().orEmpty())

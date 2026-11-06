@@ -26,6 +26,7 @@ class DashboardScreen(
     onStart: () -> Unit,
     onStop: () -> Unit,
     private val onReplay: () -> Unit,
+    private val saved: android.os.Bundle? = null,
 ) {
     val rootView: View
     private val content = FrameLayout(activity)
@@ -42,6 +43,13 @@ class DashboardScreen(
     private val fixMetric = TextView(activity)
     private val pipelineState = TextView(activity)
     private val trajectoryView = TrajectoryView(activity)
+    private val liveMap = StreetMapPanel(activity, false, saved?.getBundle("liveMap"))
+    private val replayMap = StreetMapPanel(activity, true, saved?.getBundle("replayMap"))
+    fun save(out: android.os.Bundle) { out.putInt("tab", selectedTab); out.putBundle("liveMap", liveMap.save()); out.putBundle("replayMap", replayMap.save()) }
+    fun onStart() { liveMap.start(); replayMap.start() }
+    fun onStop() { liveMap.stop(); replayMap.stop() }
+    fun onDestroy() { liveMap.destroy(); replayMap.destroy() }
+    fun onLowMemory() { liveMap.lowMemory(); replayMap.lowMemory() }
     private val diagnosticImu = TextView(activity)
     private val diagnosticGnss = TextView(activity)
     private val diagnosticClock = TextView(activity)
@@ -54,9 +62,10 @@ class DashboardScreen(
     private val diagnosticIns = TextView(activity)
     private val diagnosticSmoother = TextView(activity)
     private val diagnosticImuPairing = TextView(activity)
+    private var selectedTab = saved?.getInt("tab", 0) ?: 0
     private var status = LoggerStatus()
     private var permissionsGranted = false
-    private var replayResult: ReplayResult? = null
+    private var replayResult: ReplayResult? = ReplayDisplayCache.result
     private var replayRunning = false
     private var replayFailure: String? = null
 
@@ -66,14 +75,19 @@ class DashboardScreen(
             setBackgroundColor(activity.getColor(R.color.canvas))
             setPadding(dp(16), dp(10), dp(16), dp(12))
         }
-        root.addView(buildHeader(), LinearLayout.LayoutParams.MATCH_PARENT, dp(66))
-        root.addView(buildTabs(), LinearLayout.LayoutParams.MATCH_PARENT, dp(46))
+        root.setOnApplyWindowInsetsListener { view, insets ->
+            val bars = insets.getInsets(android.view.WindowInsets.Type.systemBars() or android.view.WindowInsets.Type.displayCutout())
+            view.setPadding(dp(16) + bars.left, dp(10) + bars.top, dp(16) + bars.right, dp(12) + bars.bottom)
+            insets
+        }
+        root.addView(buildHeader(), LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        root.addView(buildTabs(), LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         root.addView(content, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f,
         ))
         startButton.setOnClickListener { onStart() }
         stopButton.setOnClickListener { onStop() }
-        showLive()
+        when (selectedTab) { 1 -> showReplay(); 2 -> showDiagnostics(); else -> showLive() }
         rootView = root
     }
 
@@ -223,14 +237,17 @@ class DashboardScreen(
                 addView(RadioButton(activity).apply {
                     id = View.generateViewId()
                     text = label
+                    isChecked = index == selectedTab
                     gravity = Gravity.CENTER
-                    textSize = 13f
+                    textSize = 14f
+                    minHeight = dp(48)
                     setTextColor(activity.getColor(R.color.ink))
                     typeface = Typeface.DEFAULT_BOLD
                     buttonDrawable = null
                     setBackgroundResource(R.drawable.bg_tab_selector)
                     setPadding(dp(4), 0, dp(4), 0)
                     setOnClickListener {
+                        selectedTab = index
                         when (index) {
                             0 -> showLive()
                             1 -> {
@@ -240,9 +257,9 @@ class DashboardScreen(
                             else -> showDiagnostics()
                         }
                     }
-                }, RadioGroup.LayoutParams(0, RadioGroup.LayoutParams.MATCH_PARENT, 1f))
+                }, RadioGroup.LayoutParams(0, RadioGroup.LayoutParams.WRAP_CONTENT, 1f))
             }
-            check(getChildAt(0).id)
+            check(getChildAt(selectedTab).id)
         }
     }
 
@@ -260,19 +277,21 @@ class DashboardScreen(
             setBackgroundResource(R.drawable.bg_panel)
         }
         body.addView(detached(permissionBanner), matchWrap().apply { bottomMargin = dp(10) })
-        body.addView(buildSolutionPanel(), matchWrap().apply { bottomMargin = dp(10) })
-        body.addView(buildMetricsPanel(), matchWrap().apply { bottomMargin = dp(10) })
-        body.addView(buildTrajectoryPanel(), matchWrap().apply { bottomMargin = dp(10) })
-        body.addView(text("ESTIMATOR PIPELINE", 11f, R.color.muted, Typeface.BOLD).apply {
-            setPadding(dp(2), dp(4), 0, dp(6))
-        })
-        body.addView(detached(pipelineState).apply {
-            text = "Sensor stream idle  •  live estimator ready  •  replay FGO ready"
-            setTextColor(activity.getColor(R.color.ink))
-            textSize = 13f
-            setPadding(dp(2), 0, 0, dp(14))
-        })
+        body.addView(detached(liveMap), matchWrap())
         body.addView(buildActions())
+        val diagnostics = LinearLayout(activity).apply {
+            orientation = LinearLayout.VERTICAL
+            visibility = View.GONE
+            addView(buildSolutionPanel(), matchWrap())
+            addView(buildMetricsPanel(), matchWrap())
+            addView(buildTrajectoryPanel(), matchWrap())
+            addView(detached(pipelineState), matchWrap())
+        }
+        body.addView(Button(activity).apply {
+            text = "Show / hide diagnostics"; minHeight = dp(48)
+            setOnClickListener { diagnostics.visibility = if (diagnostics.visibility == View.GONE) View.VISIBLE else View.GONE }
+        })
+        body.addView(diagnostics)
         content.addView(ScrollView(activity).apply {
             isFillViewport = true
             addView(body)
@@ -382,16 +401,9 @@ class DashboardScreen(
             addView(text(subtitle, 13f, if (replayFailure == null) R.color.muted else R.color.red))
             addView(Space(activity), LinearLayout.LayoutParams(1, dp(14)))
             if (result != null) {
+                replayMap.setSamples(result.geographicTracks)
+                addView(detached(replayMap), matchWrap())
                 addView(buildComparisonTable(result), matchWrap().apply { bottomMargin = dp(10) })
-                addView(LinearLayout(activity).apply {
-                    orientation = LinearLayout.VERTICAL
-                    setBackgroundResource(R.drawable.bg_panel)
-                    setPadding(dp(14), dp(12), dp(14), dp(12))
-                    addView(text("LOCAL ENU TRAJECTORY", 11f, R.color.muted, Typeface.BOLD))
-                    addView(ReplayTrajectoryView(activity).apply {
-                        setTrajectories(result)
-                    }, LinearLayout.LayoutParams.MATCH_PARENT, dp(205))
-                }, matchWrap().apply { bottomMargin = dp(10) })
                 addView(panelSection("SOLVER HEALTH", listOf(
                     "WLS" to "${failureCount(result.wlsMetrics.solverFailures)}   ${format(result.wlsMetrics.meanLatencyMillis, 2)} ms mean",
                     "FGO" to "${failureCount(result.fgoMetrics.solverFailures)}   ${format(result.fgoMetrics.meanLatencyMillis, 2)} ms mean",
@@ -454,6 +466,7 @@ class DashboardScreen(
     fun showReplayResult(result: ReplayResult) {
         replayRunning = false
         replayFailure = null
+        ReplayDisplayCache.result = result
         replayResult = result
         showReplay()
     }
@@ -697,3 +710,5 @@ class DashboardScreen(
         LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT,
     )
 }
+
+private object ReplayDisplayCache { var result: ReplayResult? = null }

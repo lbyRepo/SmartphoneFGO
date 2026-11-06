@@ -16,8 +16,8 @@ android {
         applicationId = "com.example.navgraph"
         minSdk = 30
         targetSdk = 36
-        versionCode = 12
-        versionName = "0.12.0"
+        versionCode = 13
+        versionName = "0.13.0"
         testInstrumentationRunner =
             "com.example.navgraph.estimator.NativeParityInstrumentation"
         if (nativeAndroidEnabled) {
@@ -26,6 +26,8 @@ android {
             }
         }
     }
+
+    buildFeatures { buildConfig = true }
 
     kotlinOptions {
         jvmTarget = "17"
@@ -47,6 +49,8 @@ android {
 }
 
 dependencies {
+    implementation("org.maplibre.gl:android-sdk:13.7.1")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     testImplementation(kotlin("test"))
     testImplementation("junit:junit:4.13.2")
 }

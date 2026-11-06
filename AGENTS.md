@@ -9,6 +9,10 @@ workspace.
 
 Repository-level rules:
 
+- Save all future generated PNG images under the repository-root `assets/`
+  directory, using task-specific subfolders when useful. Do not write generated
+  PNGs directly into the repository root. Link to this location from verification
+  reports and other documentation.
 - Treat `fgo_android_app/docs` as the canonical technical documentation.
 - Keep `validation_tools` as an independent desktop reference and log validator.
 - Keep public fixtures under `datasets` or bundled read-only Android assets; record

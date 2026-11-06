@@ -231,3 +231,92 @@ Screenshots:
 - `images/navgraph_v011_native_ekf_diag.png`
 - `images/navgraph_v012_native_fgo_diag.png`
 - `images/permission.png`
+
+## Map feature 0.13.0 / code 13 — 2026-11-06
+
+This section applies to branch `codex/feature-osm-trajectory`. Evidence is Android
+ARM64 emulator/public replay and deterministic tests, not physical S23+ evidence.
+Full feature acceptance remains incomplete for the gaps below.
+
+### Executed verification
+
+- Offline Gradle `testDebugUnitTest`, `assembleDebug` and `lintDebug`: passed;
+  36 JVM tests, zero failures. Six focused map tests cover coordinate conversion,
+  source separation/deduplication/reset, clock boundaries during duplicate status updates, gaps/invalid samples/time rollback/
+  antimeridian splits/staleness, bounded endpoints, and seeking without future or
+  live-time samples. Lint retains translation and programmatic-view warnings;
+  no build errors were suppressed.
+- APK installed and public replay run through the Replay tab. A limited online
+  viewing check rendered real OSM streets. Subsequent viewport captures disabled
+  Wi-Fi and mobile data and rendered cached streets. No camera-sweep downloads
+  or region prefetch were performed.
+- Packaged native instrumentation passed on arm64-v8a: C++ JNI WLS/INS/EKF/FGO
+  loaded, 2,000 INS and EKF propagations, 21 native GNSS updates, 40 native FGO
+  windows, zero native failures and seven accepted feedback corrections in the
+  captured run. Native WLS position/velocity errors were 4.01e-9 m / 4.04e-13 m/s.
+- The instrumentation additionally ran the bundled public replay and exported
+  geographic samples and metrics to the app-private `map-replay-evidence.json`.
+  A desktop replay used the identical versioned segment and two-second lag.
+  Asset and desktop input bytes match. SHA-256 values are
+  `378172102ac5f22984605b91d3329d5612db3a569fbc0c5e1d1db899d2ee081d`
+  (device GNSS) and
+  `3fe3f086a66f48fc17b408065bbcb67eb32a36e31f70cba3f34d333c37b36201`
+  (ground truth). Provenance remains in `datasets/gsdc_2021_s20ultra_segment`.
+- All 1,200 Android WLS/FGO geographic samples were compared with desktop ECEF
+  conversions: maximum latitude/longitude difference 2.274e-13 degrees. P50/P95
+  metric differences are below 2.4e-9 m. See
+  [comparison evidence](evidence/map_0_13_0/android_desktop_comparison.json).
+- Public replay: 600 epochs, 15,554 accepted observations, WLS/FGO failures 1/3,
+  WLS/FGO post-fit rejection totals 15/14 on desktop. Minimum unique satellites
+  before post-fit rejection was 12. All 600 epochs in each pipeline retain at
+  least 11 under the conservative unique-satellite-count minus rejection-count
+  check. These qualifying epochs give WLS P50/P95 8.9042/20.4333 m and FGO
+  8.9908/20.2040 m. These are public S20 Ultra regression results.
+
+### Viewports and screenshots
+
+The connected Android Studio ARM64 AVD is `sdk_gphone64_arm64` (Android API 36
+family). Its default viewport was 1080 x 2400 at 420 dpi. Overrides tested:
+
+| Configuration | Pixels | Density | Logical size | Font scales |
+| --- | --- | --- | --- | --- |
+| S23+-representative | 1080 x 2340 | 420 dpi | about 411 x 891 dp | 1.0, 1.3 |
+| Smaller supported phone | 1080 x 2160 | 480 dpi | 360 x 720 dp | 1.0, 1.3, 2.0 |
+
+These logical sizes include system-bar areas; the dashboard applies actual
+system-bar/cutout insets. Ten replay/top-and-scrolled screenshots and five UI
+hierarchies are in [map evidence](evidence/map_0_13_0/). Inspection found a header
+system-bar overlap and a slider touch height below 48 dp. The header now applies
+insets, and the slider has an explicit 48 dp layout height. Icon controls have
+accessible follow/fit/zoom descriptions. Text wraps and the content scrolls at
+2.0 font scale; Diagnostics wraps within its tab. Emulator size, density, fonts
+and network settings are restored after the capture sequence.
+
+### Remaining acceptance gaps
+
+- Standalone portable C++ and host-JNI parity gates were attempted and failed to
+  link: the host linker cannot parse the installed MacOSX27 SDK TBD architectures
+  (`arm64e.x1-macos` / `arm64e-macos`). Retrying with Xcode's developer directory
+  did not resolve the host mismatch. Packaged Android native parity passed.
+- Full live-moving-session/background-history/reset stress checks, all speed/layer/
+  follow/fit combinations, and the complete Live/Diagnostics enlarged-font matrix
+  are not yet certified. The screenshots establish replay layout observations,
+  not a pass for every acceptance interaction.
+- An automated local-tile camera harness and a controlled uncached tile-failure
+  test remain outstanding. Cached offline rendering was observed; that alone
+  does not certify every unavailable-network/error-recovery path.
+- There is no physical Samsung S23+ accuracy, power or thermal evidence, and no
+  sub-meter claim. Process-death map/session recovery remains out of scope.
+
+Additional interaction evidence: play/pause advanced the recording, seeking selected
+299.5 / 599.0 seconds, and background/foreground plus landscape/portrait activity
+recreation preserved that timestamp. The restored Replay tab is checked correctly
+after fixing an initial tab-highlight mismatch. See `seek_midpoint.png` and
+`recreated_midpoint.png` in the evidence directory. UI automation occasionally
+reported an idle-state timeout while map frames continued rendering; captured
+hierarchies/screenshots and the restored timeline were inspected separately.
+
+Stopped-session log check: exported `navgraph_20261106_154141_a987f467.ndjson`
+from the final APK and ran `validation_tools/validate_ndjson.py`: valid, zero
+errors; 1,522 IMU, seven GNSS clock, 49 raw GNSS and six fused-location records,
+with one session start and one session end. This is an emulator collection check.

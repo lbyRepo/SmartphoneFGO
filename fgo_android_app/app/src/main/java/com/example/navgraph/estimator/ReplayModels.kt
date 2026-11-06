@@ -67,6 +67,7 @@ data class ReplayResult(
     val measurementProfile: String = "",
     val gnssInsValidation: GnssInsValidation? = null,
     val totalComputeLatencyMillis: Double = 0.0,
+    val geographicTracks: List<com.example.navgraph.map.GeographicSample> = emptyList(),
 )
 
 data class GnssInsValidation(
